@@ -1,0 +1,13 @@
+Que vamos a hacer:
+Vas analizar y buscar como hacer una applicacion PWA que sirva para crer una lista de compras.
+Una vez realizada la compra se guarda indicando si ha faltado algo de la lista.
+Permitiendo agregar un item en cualquier momento del dia.
+
+Porque:
+Porque a la gente le cuesta hacer una lista o la olvida facilmente.
+
+Para quien:
+Cualquier usuario que tenga un dispositivo movil.
+
+Como debe funcionar:
+Se debe activar por voz, si la lista existe y no esta cerrada agregar item, si no existe agregar la nueva lista y agregar el item.

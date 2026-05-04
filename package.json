@@ -1,0 +1,25 @@
+{
+  "name": "lista-compra",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "dexie": "^4.4.2"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.5",
+    "jsdom": "^29.1.1",
+    "sharp": "^0.34.5",
+    "vite": "^6.3.0",
+    "vite-plugin-pwa": "^1.2.0",
+    "vitest": "^4.1.5"
+  }
+}
