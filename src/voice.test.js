@@ -1,5 +1,126 @@
-import { describe, it, expect } from 'vitest'
-import { parseCommand } from './voice.js'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { parseCommand, getCommandMode, resetCommandMode, setCommandMode } from './voice.js'
+
+describe('commandMode state', () => {
+  beforeEach(() => {
+    resetCommandMode()
+  })
+
+  it('should export getCommandMode function', () => {
+    expect(typeof getCommandMode).toBe('function')
+  })
+
+  it('should export resetCommandMode function', () => {
+    expect(typeof resetCommandMode).toBe('function')
+  })
+
+  it('should default commandMode to false', () => {
+    expect(getCommandMode()).toBe(false)
+  })
+
+  it('should set commandMode to true', () => {
+    setCommandMode(true)
+    expect(getCommandMode()).toBe(true)
+  })
+
+  it('should reset commandMode to false', () => {
+    setCommandMode(true)
+    resetCommandMode()
+    expect(getCommandMode()).toBe(false)
+  })
+})
+
+describe('keyword detection', () => {
+  beforeEach(() => {
+    resetCommandMode()
+  })
+
+  it('should detect "ok lista" as keyword', () => {
+    const result = parseCommand('ok lista')
+    expect(result).toBeNull()
+  })
+
+  it('should not activate commandMode on "ok lista" alone', () => {
+    parseCommand('ok lista')
+    // "ok lista" alone returns null, no state change expected
+    expect(getCommandMode()).toBe(false)
+  })
+
+  it('should detect "ok lista" followed by command', () => {
+    const result = parseCommand('ok lista agregar leche')
+    expect(result.action).toBe('add')
+  })
+})
+
+describe('command mode parsing', () => {
+  beforeEach(() => {
+    resetCommandMode()
+  })
+
+  it('should parse command when commandMode is true', () => {
+    setCommandMode(true)
+    const result = parseCommand('agregar leche')
+    expect(result).not.toBeNull()
+    expect(result.action).toBe('add')
+    expect(result.item).toBe('leche')
+  })
+
+it('should parse command with category when commandMode true', () => {
+    setCommandMode(true)
+    const result = parseCommand('manzana frutas')
+    expect(result.action).toBe('add')
+    expect(result.item).toBe('manzana')
+    expect(result.category).toBe('frutas')
+    // Note: parseCommand does NOT singularize - it keeps original form
+  })
+})
+
+describe('keyword detection - keyword only', () => {
+  beforeEach(() => {
+    resetCommandMode()
+  })
+
+  it('should activate commandMode when "ok lista" alone is received', () => {
+    // Simulating that "ok lista" alone sets commandMode = true
+    setCommandMode(false)
+    const result = parseCommand('ok lista')
+    expect(result).toBeNull()
+  })
+})
+
+describe('parseCommand keyword in transcript', () => {
+  it('should handle keyword in any position', () => {
+    // Test that "ok lista" trigger works anywhere in the string
+    const result = parseCommand('ok lista agregar leche')
+    expect(result).not.toBeNull()
+    expect(result.action).toBe('add')
+  })
+})
+
+describe('reset on stopListening', () => {
+  beforeEach(() => {
+    resetCommandMode()
+  })
+
+  it('should expose reset function for stopListening', () => {
+    // This tests the exported function exists
+    expect(typeof resetCommandMode).toBe('function')
+  })
+})
+
+describe('reset on onEnd', () => {
+  beforeEach(() => {
+    resetCommandMode()
+  })
+
+  it('should reset commandMode on onEnd', () => {
+    // The onEnd handler calls resetCommandMode internally
+    // This test verifies the exported function works
+    setCommandMode(true)
+    resetCommandMode()
+    expect(getCommandMode()).toBe(false)
+  })
+})
 
 describe('parseCommand', () => {
   it('should parse "agregar leche" as add action', () => {

@@ -1,5 +1,18 @@
 let recognition = null
 let isListening = false
+let commandMode = false
+
+export function getCommandMode() {
+  return commandMode
+}
+
+export function setCommandMode(value) {
+  commandMode = value
+}
+
+export function resetCommandMode() {
+  commandMode = false
+}
 
 export function initVoice(onResult, onError, onEnd) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -21,7 +34,30 @@ export function initVoice(onResult, onError, onEnd) {
       const transcript = results[i][0].transcript.trim()
       if (transcript) {
         console.log('Voice input:', transcript)
-        onResult(transcript.toLowerCase())
+        const text = transcript.toLowerCase()
+
+        // Keyword detection: "ok lista" activates command mode
+        if (/^ok lista[,]?\s*/i.test(text)) {
+          const afterKeyword = text.replace(/^ok lista[,]?\s*/i, '').trim()
+          if (afterKeyword) {
+            // "ok lista" followed by command - parse it
+            commandMode = true
+            const parsed = parseCommand(afterKeyword)
+            onResult(parsed)
+            commandMode = false
+          } else {
+            // Just "ok lista" - activate command mode
+            commandMode = true
+          }
+        } else if (commandMode) {
+          // In command mode - parse the command
+          const parsed = parseCommand(text)
+          onResult(parsed)
+          commandMode = false
+        } else {
+          // Normal mode - pass through
+          onResult(text)
+        }
         break
       }
     }
@@ -42,6 +78,7 @@ export function initVoice(onResult, onError, onEnd) {
 
   recognition.onend = () => {
     isListening = false
+    commandMode = false
     onEnd()
   }
 
@@ -61,6 +98,7 @@ export function stopListening() {
   if (recognition && isListening) {
     recognition.stop()
     isListening = false
+    commandMode = false
   }
 }
 
